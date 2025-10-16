@@ -5,8 +5,11 @@ It does this by getting the urls for a bunch of jobs and getting specific job in
 
 [installation]
 npm install
+
 npm run build
+
 (npm i -g) <- to install the "career_scraper" command to your system (optional)
 
 [usage]
-./dist/script.js -u "https://wpp.careersitecloud.com/search" -b "https://wpp.careersitecloud.com" -o [output file dir (default output.json)]
+
+node ./dist/script.js -u "https://wpp.careersitecloud.com/search" -b "https://wpp.careersitecloud.com" -o [output file dir (default output.json)]
