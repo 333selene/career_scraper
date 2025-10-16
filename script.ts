@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import * as fs from "fs";
 import { Command } from "commander";
 import { firefox } from "playwright";
 import * as Cheerio from "cheerio";
@@ -101,9 +102,9 @@ function getJobDataFromHtml(html: string): JobData {
 }
 
 async function main(): Promise<void> {
-  let jobPagesUrl = "";
-  let jobsBaseUrl = "";
-  let outputFile = "output.json";
+  let jobPagesUrl: string = "";
+  let jobsBaseUrl: string = "";
+  let outputFile: string = "output.json";
 
   if (options.url && typeof options.url === "string") {
     jobPagesUrl = options.url;
@@ -116,16 +117,20 @@ async function main(): Promise<void> {
   } else {
     throw new Error("You must provide a base url shared by all job listings");
   }
+
+  if (options.output && typeof options.output === "string") {
+    outputFile = options.output;
+  }
+
   console.log("Starting...");
   const browser = { name: "firefox", instance: await firefox.launch() };
   try {
     const page = await browser.instance.newPage();
 
     const results = await getJobPages(jobPagesUrl, page);
-    console.log("job urls:");
-    console.log(results);
+    const first10 = results.splice(0, 10);
     const htmls: string[] = [];
-    for (const siteLocation of results) {
+    for (const siteLocation of first10) {
       const content = await getHtmlFromJobPage(jobsBaseUrl, siteLocation, page);
 
       htmls.push(content);
@@ -135,7 +140,14 @@ async function main(): Promise<void> {
       const info = getJobDataFromHtml(content);
       jobs.push(info);
     });
-    console.log(jobs);
+    const jsonString: string = JSON.stringify(jobs, null, 2);
+    fs.writeFile(outputFile, jsonString, (err) => {
+      if (err) {
+        console.error("error writing JSON file:", err);
+        return;
+      }
+      console.log(`data successfully written to ${outputFile}`);
+    });
   } finally {
     await browser.instance.close();
   }
