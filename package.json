@@ -1,7 +1,10 @@
 {
   "name": "career_scraper",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "dist/script.js",
+  "bin": {
+    "career_scraper": "./dist/script.js"
+  },
   "scripts": {
     "build": "npx tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
