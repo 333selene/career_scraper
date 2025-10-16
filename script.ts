@@ -7,19 +7,13 @@ interface JobData {
   jobCategory: string;
   jobCountry: string;
   jobCity: string;
-  jobDescription: string[];
-  jobRequirements: string[];
+  jobDescription: string;
 }
 
 interface JobFields {
   jobCategory: string;
   jobCountry: string;
   jobCity: string;
-}
-
-interface JobText {
-  jobDescription: string[];
-  jobRequirements: string[];
 }
 
 const firefox = playwright.firefox;
@@ -76,48 +70,21 @@ function parseJobFields($: Cheerio.CheerioAPI): JobFields {
   return { jobCategory, jobCountry, jobCity };
 }
 
-function parseJobText(html: string): JobText {
-  const jobDescription: string[] = [];
-  const jobRequirements: string[] = [];
-  const regex_desc = new RegExp(
-    "/<strong>What you'll be doing\X*.*?(?=<strong>What you'll need:)",
-  );
-  const regex_req = new RegExp(
-    "<strong>What you'll need\X*.?(?=<strong>Who you are)",
-  );
-  const html_desc = regex_desc.exec(html);
-  const html_req = regex_req.exec(html);
-  if (html_desc) {
-    const desc = html_desc[0];
-    const $desc = Cheerio.load(desc);
-    $desc("li").each((_, element) => {
-      const text = $desc(element).text().trim();
-      jobDescription.push(text);
-    });
-  }
-  if (html_req) {
-    const req = html_req[0];
-    const $desc = Cheerio.load(req);
-    $desc("li").each((_, element) => {
-      const text = $desc(element).text().trim();
-      jobRequirements.push(text);
-    });
-  }
-  return { jobDescription, jobRequirements };
+function parseJobText($: Cheerio.CheerioAPI): string {
+  return $(".description-info").text().trim() ?? "";
 }
 
 function getJobDataFromHtml(html: string): JobData {
   const $ = Cheerio.load(html);
   const jobTitle = parseJobTitle($);
   const { jobCountry, jobCategory, jobCity } = parseJobFields($);
-  const { jobDescription, jobRequirements } = parseJobText(html);
+  const jobDescription = parseJobText($);
   const data: JobData = {
     jobTitle,
     jobCategory,
     jobCity,
     jobCountry,
     jobDescription,
-    jobRequirements,
   };
   return data;
 }
