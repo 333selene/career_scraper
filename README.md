@@ -4,6 +4,7 @@ This tool scrapes jobs from this company's site: https://wpp.careersitecloud.com
 It does this by getting the urls for a bunch of jobs and getting specific job info from each individual job listing,
 
 [installation]
+
 npm install
 
 npm run build
